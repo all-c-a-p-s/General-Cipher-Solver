@@ -7,7 +7,7 @@ Instead of having to write a whole solver for a cipher, you only have to write f
 - [ ] randomly mutate the key
 - [ ] crossover two keys (optional but improves performance)
 
-# Usage
+## Usage
 - [install Rust](https://www.rust-lang.org/)
 - clone the repo: ```git clone https://github.com/all-c-a-p-s/General-Cipher-Solver```
 - create new file corresponding to the cipher you want, and add ```pub mod file_name;``` to main.rs
