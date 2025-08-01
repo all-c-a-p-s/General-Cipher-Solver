@@ -14,4 +14,6 @@ Instead of having to write a whole solver for a cipher, you only have to write f
 - update function call in main.rs (remember to set generic parameter appropriately depending on crossover)
 - optionally change GA parameters
 
+**NOTE:** Examples can be found for a simple monoalphabetic substitution cipher, or for a slightly more complicated four square cipher solver.
+
 Once this is done, sit back and watch the [BLAZINGLY FAST](https://programmerhumor.io/rust-memes/rust-is-blazingly-fast-and-we-wont-shut-up-about-it-f24q) parallelised solver 🚀🚀🚀
