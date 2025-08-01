@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use crate::fitness;
 
-const CIPHERTEXT: &str = include_str!("ciphertext.txt");
+const CIPHERTEXT: &str = include_str!("ciphertext_fs.txt");
 
 fn fmt(v: &Vec<u8>) -> Vec<u8> {
     v.iter()
