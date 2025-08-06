@@ -7,7 +7,7 @@ pub mod utils;
 
 pub const CIPHERTEXT: &str = include_str!("ciphertexts/ciphertext_columnar.txt");
 
-// aim: to solve an cipher using the genetic algorithm given:
+// solve an cipher using the genetic algorithm given:
 // - ciphertext
 // - random initial key state
 // - mutation function
