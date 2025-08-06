@@ -35,6 +35,6 @@ Examples can be found for:
 ## Limitations
 There are some limitations of this project, which may or may not be adressed in the future:
 - You first need to identify the cipher used. Some good advice for this can be found [here](https://github.com/themaddoctor/BritishNationalCipherChallenge/tree/master/guides).
-- Ciphers with very large keys (e.g. over 100) may be impractical to solve.
-- Compound ciphers may be impractical to solve
-- The genetic algorithm is not well suited to 'chaotic' ciphers (ciphers in which similar keys do not produce similar plaintexts)
+- Ciphers with very large keys (e.g. over 100 elements) may be impractical to solve.
+- Compound ciphers may be impractical to solve.
+- The genetic algorithm is not well suited to 'chaotic' ciphers (ciphers in which similar keys do not produce similar plaintexts).
