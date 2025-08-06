@@ -1,3 +1,4 @@
+pub mod columnar;
 pub mod fitness;
 pub mod four_square;
 pub mod ga_solver;
@@ -15,11 +16,11 @@ const POPULATION_SIZE: usize = 100;
 const NUM_CHILDREN: usize = 20;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let s = ga_solver::solve::<true, four_square::Key>(
-        Box::new(four_square::Key::new),
-        Some(Box::new(four_square::crossover)),
-        Box::new(four_square::mutate),
-        Box::new(four_square::decipher),
+    let s = ga_solver::solve::<true, columnar::Key<7>>(
+        Box::new(columnar::Key::new),
+        Some(Box::new(columnar::crossover::<7>)),
+        Box::new(columnar::mutate::<7>),
+        Box::new(columnar::decipher_rc::<7>),
         MAX_GENERATIONS,
         POPULATION_SIZE,
         NUM_CHILDREN,
