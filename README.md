@@ -1,7 +1,7 @@
 # General Cipher Solver
 Applying the genetic algorithm to solve any cipher<sup>[1](#footnote1)</sup>.
 
- <span style="font-size: 0.7em;"><a id="footnote1">1</a>:See 'Limitations'</span>
+ <sub><a id="footnote1">1</a>:See 'Limitations'</sub>
 
 Instead of having to write a whole solver for a cipher, you only have to write functions to:
 - [ ] randomly initialise a key
@@ -11,7 +11,7 @@ Instead of having to write a whole solver for a cipher, you only have to write f
 
 Depending on your use case, these functions may have already been written for you<sup>[2](#footnote2)</sup>!
 
- <span style="font-size: 0.7em;"><a id="footnote2">2</a>:See 'Limitations'</span>
+ <sub><a id="footnote2">2</a>:See 'Limitations'</sub>
 
 ## Usage
 - [install Rust](https://www.rust-lang.org/)
