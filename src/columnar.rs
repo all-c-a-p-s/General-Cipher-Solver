@@ -1,6 +1,4 @@
-use rand::Rng;
-use rand::seq::SliceRandom;
-use std::collections::HashSet;
+use crate::utils::*;
 
 // Note: for a columnar transposition cipher, work will still have to be done to find the key
 // length.
@@ -12,12 +10,10 @@ pub struct Key<const COLUMNS: usize> {
 
 impl<const COLUMNS: usize> Key<COLUMNS> {
     pub fn new() -> Key<{ COLUMNS }> {
-        let mut ls: Vec<usize> = (0..COLUMNS).into_iter().collect();
+        let sample: Vec<usize> = (0..COLUMNS).into_iter().collect();
 
-        let mut rng = rand::rng();
-        ls.shuffle(&mut rng);
         Self {
-            column_order: ls.try_into().unwrap(),
+            column_order: vector_initialise::<COLUMNS, usize>(&sample),
         }
     }
 }
@@ -53,58 +49,15 @@ pub fn decipher_cr<const COLUMNS: usize>(ciphertext: &Vec<u8>, k: Key<COLUMNS>) 
     sorted_columns.into_iter().flatten().collect()
 }
 
-pub fn mutate<const COLUMNS: usize>(mut k: Key<COLUMNS>) -> Key<COLUMNS> {
-    let mut rng = rand::rng();
-    let r1 = rng.random_range(0..COLUMNS);
-    let mut r2 = rng.random_range(0..COLUMNS);
-    while r2 == r1 {
-        r2 = rng.random_range(0..COLUMNS);
+pub fn mutate<const COLUMNS: usize>(k: Key<COLUMNS>) -> Key<COLUMNS> {
+    Key {
+        column_order: vector_mutate::<COLUMNS, usize>(k.column_order),
     }
-
-    k.column_order.swap(r1, r2);
-
-    k
 }
 
 pub fn crossover<const COLUMNS: usize>(k1: Key<COLUMNS>, k2: Key<COLUMNS>) -> Key<COLUMNS> {
-    let mut nums: Vec<usize> = (0..COLUMNS).collect();
-    let mut rng = rand::rng();
-    nums.shuffle(&mut rng);
-
-    let mut unused: HashSet<usize> = nums.iter().cloned().collect();
-    let mut child = [0; COLUMNS];
-
-    for &i in nums.iter().take(COLUMNS / 2) {
-        child[i] = k1.column_order[i];
-    }
-    for &i in nums.iter().skip(COLUMNS - COLUMNS / 2) {
-        child[i] = k2.column_order[i];
-    }
-
-    let mut duplicates = Vec::new();
-    let mut letters_found = HashSet::new();
-
-    for (i, &letter) in child.iter().enumerate() {
-        if letters_found.contains(&letter) {
-            duplicates.push(i);
-        } else {
-            unused.remove(&letter);
-            letters_found.insert(letter);
-        }
-    }
-
-    let mut unused_nums: Vec<usize> = unused.into_iter().collect();
-
-    for &duplicate_idx in duplicates.iter() {
-        if unused_nums.is_empty() {
-            break;
-        }
-
-        let r = rng.random_range(0..unused_nums.len());
-        child[duplicate_idx] = unused_nums.remove(r);
-    }
-
+    let sample: Vec<usize> = (0..COLUMNS).into_iter().collect();
     Key {
-        column_order: child,
+        column_order: vector_crossover::<COLUMNS, usize>(k1.column_order, k2.column_order, &sample),
     }
 }

@@ -3,6 +3,9 @@ pub mod fitness;
 pub mod four_square;
 pub mod ga_solver;
 pub mod mono_solver;
+pub mod utils;
+
+pub const CIPHERTEXT: &str = include_str!("ciphertexts/ciphertext_columnar.txt");
 
 // aim: to solve an cipher using the genetic algorithm given:
 // - ciphertext
@@ -18,9 +21,9 @@ const NUM_CHILDREN: usize = 20;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let s = ga_solver::solve::<true, columnar::Key<7>>(
         Box::new(columnar::Key::new),
-        Some(Box::new(columnar::crossover::<7>)),
-        Box::new(columnar::mutate::<7>),
-        Box::new(columnar::decipher_rc::<7>),
+        Some(Box::new(columnar::crossover)),
+        Box::new(columnar::mutate),
+        Box::new(columnar::decipher_rc),
         MAX_GENERATIONS,
         POPULATION_SIZE,
         NUM_CHILDREN,

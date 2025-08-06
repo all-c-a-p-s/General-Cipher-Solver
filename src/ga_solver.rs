@@ -4,10 +4,9 @@ use rand::Rng;
 use rayon::prelude::*;
 use std::sync::Arc;
 
-use crate::fitness;
+use crate::{CIPHERTEXT, fitness};
 
-const CIPHERTEXT: &str = include_str!("ciphertext_fs.txt");
-
+/// Formats the ciphertext, removing spaces, punctuation etc.
 fn fmt(v: &Vec<u8>) -> Vec<u8> {
     v.iter()
         .filter(|x| ('A' as u8..='Z' as u8).contains(*x))
@@ -15,6 +14,7 @@ fn fmt(v: &Vec<u8>) -> Vec<u8> {
         .collect()
 }
 
+/// Applies the Genetic Algorithm to solve a cipher, given the parameters
 pub fn solve<const USE_CROSSOVER: bool, T: Clone + Send + Sync>(
     initialise: Box<dyn Fn() -> T + Send + Sync>,
     crossover: Option<Box<dyn Fn(T, T) -> T + Send + Sync>>,
@@ -41,7 +41,7 @@ pub fn solve<const USE_CROSSOVER: bool, T: Clone + Send + Sync>(
     let pb = ProgressBar::new(max_generations as u64);
     pb.set_style(
         ProgressStyle::with_template(
-            "[{elapsed_precise}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}",
+            "[{elapsed_precise}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg} [{eta_precise}]",
         )
         .unwrap()
         .progress_chars("##-"),
@@ -113,7 +113,7 @@ pub fn solve<const USE_CROSSOVER: bool, T: Clone + Send + Sync>(
     pb.finish();
 
     println!(
-        "Final score: {}",
+        "Final fitness score: {}",
         fitness::tg_fitness(
             &decipher(&ct, population[0].clone()),
             &tetragrams,
