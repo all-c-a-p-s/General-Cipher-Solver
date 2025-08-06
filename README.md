@@ -11,7 +11,7 @@ Instead of having to write a whole solver for a cipher, you only have to write f
 
 Depending on your use case, these functions may have already been written for you<sup>[2](#footnote2)</sup>!
 
- <sub><a id="footnote2">2</a>:See 'Limitations'</sub>
+ <sub><a id="footnote2">2</a>:See 'Utils'</sub>
 
 ## Usage
 - [install Rust](https://www.rust-lang.org/)
