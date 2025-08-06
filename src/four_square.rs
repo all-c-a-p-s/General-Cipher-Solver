@@ -1,4 +1,4 @@
-use crate::utils::*;
+use crate::utils::{GRID_LETTERS_J, vector_crossover, vector_initialise, vector_mutate};
 use rand::Rng;
 
 #[derive(Copy, Clone)]
@@ -16,8 +16,14 @@ struct Coords {
     column: usize,
 }
 
+impl Default for Key {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Key {
-    pub fn new() -> Self {
+    #[must_use] pub fn new() -> Self {
         let sample = GRID_LETTERS_J.to_vec();
         Self {
             a: GRID_LETTERS_J,
@@ -34,7 +40,7 @@ fn coordinates(grid_index: usize) -> Coords {
     Coords { row, column }
 }
 
-pub fn decipher(text: &Vec<u8>, k: Key) -> Vec<u8> {
+#[must_use] pub fn decipher(text: &Vec<u8>, k: Key) -> Vec<u8> {
     let grid_index = |row: usize, column: usize| row * 5 + column;
     let find = |grid: [u8; 25], c: u8| grid.iter().position(|&x| x == c).unwrap();
     let decipher_bigram = |bg: &[u8]| {
@@ -53,13 +59,13 @@ pub fn decipher(text: &Vec<u8>, k: Key) -> Vec<u8> {
     let mut deciphered = vec![];
     for i in (0..text.len() - 1).step_by(2) {
         let bg = &[text[i], text[i + 1]];
-        deciphered.extend(decipher_bigram(bg))
+        deciphered.extend(decipher_bigram(bg));
     }
 
     deciphered
 }
 
-pub fn mutate(mut k: Key) -> Key {
+#[must_use] pub fn mutate(mut k: Key) -> Key {
     //randomly swaps two elements in one of the two grids
     let mut rng = rand::rng();
     let x = rng.random_bool(0.5); //rng choosing which grid to mutate
@@ -72,7 +78,7 @@ pub fn mutate(mut k: Key) -> Key {
     k
 }
 
-pub fn crossover(k1: Key, k2: Key) -> Key {
+#[must_use] pub fn crossover(k1: Key, k2: Key) -> Key {
     let sample = GRID_LETTERS_J.to_vec();
     let mut n = k1;
     n.b = vector_crossover::<25, u8>(k1.b, k2.b, &sample);

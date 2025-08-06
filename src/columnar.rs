@@ -1,4 +1,4 @@
-use crate::utils::*;
+use crate::utils::{vector_crossover, vector_initialise, vector_mutate};
 
 // Note: for a columnar transposition cipher, work will still have to be done to find the key
 // length.
@@ -8,9 +8,16 @@ pub struct Key<const COLUMNS: usize> {
     pub column_order: [usize; COLUMNS],
 }
 
+impl<const COLUMNS: usize> Default for Key<COLUMNS> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<const COLUMNS: usize> Key<COLUMNS> {
+    #[must_use]
     pub fn new() -> Key<{ COLUMNS }> {
-        let sample: Vec<usize> = (0..COLUMNS).into_iter().collect();
+        let sample: Vec<usize> = (0..COLUMNS).collect();
 
         Self {
             column_order: vector_initialise::<COLUMNS, usize>(&sample),
@@ -19,6 +26,7 @@ impl<const COLUMNS: usize> Key<COLUMNS> {
 }
 
 /// To decipher a text read by rows, written by columns
+#[must_use]
 pub fn decipher_rc<const COLUMNS: usize>(ciphertext: &Vec<u8>, k: Key<COLUMNS>) -> Vec<u8> {
     let row_count = ciphertext.len() / COLUMNS;
     let mut rows = vec![];
@@ -35,6 +43,7 @@ pub fn decipher_rc<const COLUMNS: usize>(ciphertext: &Vec<u8>, k: Key<COLUMNS>) 
 }
 
 /// To decipher a text written by columns, written by rows
+#[must_use]
 pub fn decipher_cr<const COLUMNS: usize>(ciphertext: &Vec<u8>, k: Key<COLUMNS>) -> Vec<u8> {
     let mut columns = vec![vec![]; COLUMNS];
     for (i, &c) in ciphertext.iter().enumerate() {
@@ -43,20 +52,22 @@ pub fn decipher_cr<const COLUMNS: usize>(ciphertext: &Vec<u8>, k: Key<COLUMNS>) 
 
     let mut sorted_columns = vec![vec![]; COLUMNS];
     for (i, &c) in k.column_order.iter().enumerate() {
-        sorted_columns[c] = columns[i].to_vec();
+        sorted_columns[c].clone_from(&columns[i]);
     }
 
     sorted_columns.into_iter().flatten().collect()
 }
 
+#[must_use]
 pub fn mutate<const COLUMNS: usize>(k: Key<COLUMNS>) -> Key<COLUMNS> {
     Key {
         column_order: vector_mutate::<COLUMNS, usize>(k.column_order),
     }
 }
 
+#[must_use]
 pub fn crossover<const COLUMNS: usize>(k1: Key<COLUMNS>, k2: Key<COLUMNS>) -> Key<COLUMNS> {
-    let sample: Vec<usize> = (0..COLUMNS).into_iter().collect();
+    let sample: Vec<usize> = (0..COLUMNS).collect();
     Key {
         column_order: vector_crossover::<COLUMNS, usize>(k1.column_order, k2.column_order, &sample),
     }

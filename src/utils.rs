@@ -46,17 +46,17 @@ where
         child[indices[i]] = k2[indices[i]];
     }
 
-    let mut unused: HashSet<T> = sample.into_iter().cloned().collect();
+    let mut unused: HashSet<T> = sample.iter().copied().collect();
     let mut duplicates = Vec::new();
     let mut elems_found = HashSet::new();
 
-    for i in 0..child.len() {
-        if elems_found.contains(&child[i]) {
+    for (i, &elem) in child.iter().enumerate() {
+        if elems_found.contains(&elem) {
             duplicates.push(i);
         } else {
-            unused.remove(&child[i]);
+            unused.remove(&elem);
         }
-        elems_found.insert(child[i]);
+        elems_found.insert(elem);
     }
 
     let mut unused_elems: Vec<T> = unused.into_iter().collect();

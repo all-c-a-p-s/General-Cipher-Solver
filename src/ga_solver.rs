@@ -9,8 +9,7 @@ use crate::{CIPHERTEXT, fitness};
 /// Formats the ciphertext, removing spaces, punctuation etc.
 fn fmt(v: &Vec<u8>) -> Vec<u8> {
     v.iter()
-        .filter(|x| ('A' as u8..='Z' as u8).contains(*x))
-        .map(|x| *x)
+        .filter(|x: &&u8| x.is_ascii_uppercase()).copied()
         .collect()
 }
 
@@ -29,7 +28,7 @@ pub fn solve<const USE_CROSSOVER: bool, T: Clone + Send + Sync>(
     let tetragrams = Arc::new(tgs);
 
     let initialise = Arc::new(initialise);
-    let crossover = crossover.map(|c| Arc::new(c));
+    let crossover = crossover.map(Arc::new);
     let mutate = Arc::new(mutate);
     let decipher = Arc::new(decipher);
 

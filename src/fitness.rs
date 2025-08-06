@@ -4,7 +4,7 @@ const TETRAGRAMS: &str = include_str!("../tetragrams.txt");
 
 /// Loads the tetragrams from a file of frequencies.
 /// The tetragrams in this repo have been scraped from the Brown Corpus.
-pub fn load_tetragrams() -> (HashMap<[u8; 4], f64>, f64) {
+#[must_use] pub fn load_tetragrams() -> (HashMap<[u8; 4], f64>, f64) {
     let raw_counts: HashMap<[u8; 4], usize> = TETRAGRAMS
         .trim()
         .lines()
@@ -33,7 +33,7 @@ pub fn load_tetragrams() -> (HashMap<[u8; 4], f64>, f64) {
 
 /// Tetragram is (one of) the best fitness functions for quantifying how close a text is to
 /// English. This function calculates the tetragram fitness of a text using log probabilities.
-pub fn tg_fitness(text: &Vec<u8>, log_probs: &HashMap<[u8; 4], f64>, unseen_penalty: f64) -> f64 {
+#[must_use] pub fn tg_fitness(text: &Vec<u8>, log_probs: &HashMap<[u8; 4], f64>, unseen_penalty: f64) -> f64 {
     text.windows(4)
         .map(|window| {
             let tetragram: [u8; 4] = window.try_into().unwrap();

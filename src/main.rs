@@ -7,7 +7,7 @@ pub mod utils;
 
 pub const CIPHERTEXT: &str = include_str!("ciphertexts/ciphertext_columnar.txt");
 
-// solve an cipher using the genetic algorithm given:
+// aim: to solve an cipher using the genetic algorithm given:
 // - ciphertext
 // - random initial key state
 // - mutation function
@@ -28,5 +28,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         POPULATION_SIZE,
         NUM_CHILDREN,
     )?;
-    Ok(println!("{}", s))
+    Ok(println!("{s}"))
 }
