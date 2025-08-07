@@ -16,7 +16,8 @@ Depending on your use case, these functions may have already been written for yo
 ## Usage
 - [install Rust](https://www.rust-lang.org/)
 - clone the repo: ```git clone https://github.com/all-c-a-p-s/General-Cipher-Solver```
-- create new file corresponding to the cipher you want, and add ```pub mod file_name;``` to main.rs
+- create new file corresponding to the cipher you want in the directory ```gcs/src```, and add ```pub mod file_name;``` to main.rs
+- write the necessary functions as described above
 - update function call in main.rs (remember to set generic parameter appropriately depending on crossover)
 - optionally change GA parameters
 
