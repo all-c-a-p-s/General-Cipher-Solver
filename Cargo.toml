@@ -1,8 +1,5 @@
-[package]
-name = "general_cipher_solver"
-version = "0.1.0"
-edition = "2024"
+[workspace]
+resolver = "3"
+members = ["utils", "gcs", "datagen"]
 
-[dependencies]
-indicatif = "0.18.0"
-rand = "0.9.1"
+
