@@ -15,7 +15,7 @@ impl<const REMOVE_J: bool, const N: usize> Key<REMOVE_J, N> {
     };
     pub fn new() -> Self {
         let sample = Self::ALPHABET.to_vec();
-        let shift_sample = (0..26).collect::<Vec<_>>();
+        let shift_sample = (0..25).collect::<Vec<_>>();
         Self {
             grid: vector_initialise::<25, u8>(&sample),
             shift: vector_sample::<N, u8>(&shift_sample),
@@ -34,7 +34,7 @@ impl<const REMOVE_J: bool, const N: usize> Key<REMOVE_J, N> {
             .shift
             .iter()
             .map(|x| {
-                let idx = find(self.grid, b'A' + *x);
+                let idx = find(self.grid, Self::ALPHABET[*x as usize]);
                 let cs = coords(idx);
                 to_dec(cs) as u8
             })
