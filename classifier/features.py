@@ -114,21 +114,18 @@ def best_ioc_spike(ct):
         total += c
 
     mean = total / len(coincidences)
-    high_indices = [i for i, x in enumerate(coincidences) if x > mean * 1.5]
+    high_indices = [i + 2 for i, x in enumerate(coincidences) if x > mean * 1.5]
 
     if not high_indices:
         return None
-
-    else:
-        print("INFO: this text does have an IOC spike")
 
     # now we need to detect multiples of the key length and ignore these
     # 'x' is more likely to be the key length if the high indices are separated by 'x'
     #          (as they are multiples of 'x')
     # and less likely otherwise
     # we choose the best IOC spike based on this
-    best_score, spike = 0, 0
-    for step in range(1, len(high_indices)):
+    best_score, spike = -1, 0
+    for step in high_indices:
         score = sum(
             1 if high_indices[i] + step == high_indices[i + 1] else -1
             for i in range(len(high_indices) - 1)
@@ -137,6 +134,9 @@ def best_ioc_spike(ct):
             spike = step
             best_score = score
 
+    if spike == 0:
+        return None
+    print(f"INFO: this text does have an IOC spike at {spike}")
     return spike
 
 

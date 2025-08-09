@@ -29,7 +29,7 @@ def convert_from_int(x):
     return int_to_name[x]
 
 
-model = keras.models.load_model("models/dnn.keras")
+model = keras.models.load_model("models/cnn.keras")
 
 
 def analyse_ct(filename, threshold=0.01):
