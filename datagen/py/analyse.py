@@ -11,7 +11,7 @@ def analyse_class(correct, preds):
         p = preds[i]
         if i == correct:
             continue
-        if p > total * 0.05:
+        if p > total * 0.01:
             s += data.convert_from_int(i) + f"({p / total:.4f}),"
     if s[-1] == ",":
         s = s[:-1]
