@@ -1,7 +1,10 @@
 import logging
 import numpy as np
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Dense, Input
+from tensorflow.keras.layers import (
+    Dense,
+    Input,
+)
 from sklearn.metrics import confusion_matrix
 
 import data
@@ -13,9 +16,9 @@ logging.info("about to start loading data")
 X_train, X_test, y_train, y_test = data.load_data("../data/cipher_data.csv")
 logging.info("done loading data")
 
-inputs = Input(shape=(47,))
-dense = Dense(32, activation="relu")(inputs)
-outputs = Dense(13, activation="softmax")(dense)
+inputs = Input(shape=(9,))
+dense = Dense(32)(inputs)
+outputs = Dense(13)(dense)
 
 model = Model(inputs, outputs)
 model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
@@ -37,4 +40,4 @@ y_test_classes = np.argmax(y_test, axis=1) if y_test.ndim > 1 else y_test
 cf = confusion_matrix(y_test_classes, y_pred_classes)
 analyse.analyse_confusion_matrix(cf)
 
-model.save("../models/dnn.keras")
+model.save("../models/cnn.keras")

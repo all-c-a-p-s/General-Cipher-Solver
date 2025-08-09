@@ -34,7 +34,7 @@ pub fn get_plaintext() -> Vec<u8> {
 
 fn process_plaintext<const REMOVE_J: bool, const KEY_LENGTH: usize>(
     pt: &[u8],
-) -> [(String, [f32; 47]); 13] {
+) -> [(String, [f32; 46]); 13] {
     let labels = [
         "adfgx",
         "autokey",
@@ -76,11 +76,11 @@ fn process_plaintext<const REMOVE_J: bool, const KEY_LENGTH: usize>(
     labelled.try_into().unwrap()
 }
 
-fn gen_from(pt: &[u8]) -> Vec<[(String, [f32; 47]); 13]> {
+fn gen_from(pt: &[u8]) -> Vec<[(String, [f32; 46]); 13]> {
     combos!(pt; 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
 }
 
-pub fn generate_once() -> Vec<[(String, [f32; 47]); 13]> {
+pub fn generate_once() -> Vec<[(String, [f32; 46]); 13]> {
     let pt = get_plaintext();
     gen_from(&pt)
 }

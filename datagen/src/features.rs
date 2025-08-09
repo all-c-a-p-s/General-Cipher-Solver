@@ -85,58 +85,80 @@ pub fn shift_ioc(n: usize, ct: &[u8]) -> f32 {
     26.0 * coincidences(ct, &shifted) as f32 / ct.len() as f32
 }
 
-pub fn first_ioc_spike(ct: &[u8]) -> Option<usize> {
-    let mut max = shift_ioc(1, ct);
-    for shift in 1..=15 {
-        let s = shift_ioc(shift, ct);
-        if s > max {
-            if s > 1.5 && s > max * 1.2 {
-                return Some(shift);
-            }
-            max = s;
+fn best_ioc_spike(ct: &[u8]) -> Option<usize> {
+    let mut coincidences = Vec::new();
+    let mut total = 0.0;
+
+    for shift in 2..=15 {
+        let c = shift_ioc(shift, ct);
+        coincidences.push(c);
+        total += c;
+    }
+
+    let mean = total as f32 / coincidences.len() as f32;
+
+    let high_indices = coincidences
+        .iter()
+        .enumerate()
+        .filter(|(_, x)| **x as f32 > mean * 1.5)
+        .map(|(a, _)| a)
+        .collect::<Vec<_>>();
+
+    if high_indices.is_empty() {
+        return None;
+    }
+
+    // now we need to detect multiples of the key length and ignore these
+    // 'x' is more likely to be the key length if the high indices are separated by 'x'
+    //          (as they are multiples of 'x')
+    // and less likely otherwise
+    // we choose the best IOC spike based on this
+
+    let (mut best_score, mut spike) = (0, 0);
+    for step in 1..high_indices.len() {
+        let score = high_indices
+            .windows(2)
+            .map(|w| if w[0] + step == w[1] { 1 } else { -1 })
+            .sum();
+
+        if score > best_score {
+            spike = step;
+            best_score = score;
         }
     }
-    None
+
+    Some(spike)
 }
 
-/// Features of type [f32; 47]
+/// Features of type [f32; 46]
 /// - first 36 are alphanumeric frequencies
 /// -       1  unique letter count
 /// -       1  unique bigram count
 /// -       1  IOC spike present?
 /// -       1  lowest IOC spike (0 if not present)
 /// -       1  contains double letters?
-/// -       1  contains J?
-/// -       1  contains Z?
+/// -       1  contains 25 letters?
 /// -       1  contains numbers?
 /// -       1  only numbers?
 /// -       1  cosine with english frequencies
 /// -       1  shannon entropy
-pub fn get_all_features(ct: &[u8]) -> [f32; 47] {
+pub fn get_all_features(ct: &[u8]) -> [f32; 46] {
     let all_frequencies = get_all_frequencies(ct);
     let letter_frequencies: [f32; 26] = all_frequencies[0..26].try_into().unwrap();
     let unique_letters = unique_letters(ct) as f32;
     let unique_bigrams = unique_bigrams(ct) as f32;
 
-    let (has_spike, first_spike) = if let Some(spike) = first_ioc_spike(ct) {
+    let (has_spike, first_spike) = if let Some(spike) = best_ioc_spike(ct) {
         (true, spike)
     } else {
         (false, 0)
     };
 
-    let (
-        mut contains_j,
-        mut contains_z,
-        mut contains_double,
-        mut contains_numbers,
-        mut only_numbers,
-    ) = (false, false, false, false, true);
+    let (mut contains_double, mut contains_numbers, mut only_numbers) = (false, false, true);
 
     //handle several things in one iteration over the ct
     for (i, x) in ct.iter().enumerate() {
         match x {
-            b'J' => contains_j = true,
-            b'Z' => contains_z = true,
             y if y.is_ascii_digit() => contains_numbers = true,
             z if !z.is_ascii_digit() => only_numbers = false,
             _ => {}
@@ -147,7 +169,7 @@ pub fn get_all_features(ct: &[u8]) -> [f32; 47] {
         }
     }
 
-    let mut all_features = [0.0; 47];
+    let mut all_features = [0.0; 46];
     for (i, &f) in all_frequencies.iter().enumerate() {
         all_features[i] = f;
     }
@@ -157,20 +179,18 @@ pub fn get_all_features(ct: &[u8]) -> [f32; 47] {
     const HAS_SPIKE_IDX: usize = 38;
     const LOWEST_SPIKE_IDX: usize = 39;
     const CONTAINS_DOUBLES_IDX: usize = 40;
-    const CONTAINS_J_IDX: usize = 41;
-    const CONTAINS_Z_IDX: usize = 42;
-    const CONTAINS_NUMS_IDX: usize = 43;
-    const ONLY_NUMS_IDX: usize = 44;
-    const COSINE_IDX: usize = 45;
-    const ENTROPY_IDX: usize = 46;
+    const CONTAINS_25_LETTERS_IDX: usize = 41;
+    const CONTAINS_NUMS_IDX: usize = 42;
+    const ONLY_NUMS_IDX: usize = 43;
+    const COSINE_IDX: usize = 44;
+    const ENTROPY_IDX: usize = 45;
 
     all_features[UNIQUE_COUNT_IDX] = unique_letters;
     all_features[UNIQUE_BIGRAM_IDX] = unique_bigrams;
     all_features[HAS_SPIKE_IDX] = f32::from(has_spike);
     all_features[LOWEST_SPIKE_IDX] = first_spike as f32;
     all_features[CONTAINS_DOUBLES_IDX] = f32::from(contains_double);
-    all_features[CONTAINS_J_IDX] = f32::from(contains_j);
-    all_features[CONTAINS_Z_IDX] = f32::from(contains_z);
+    all_features[CONTAINS_25_LETTERS_IDX] = f32::from(unique_letters == 25.0);
     all_features[CONTAINS_NUMS_IDX] = f32::from(contains_numbers);
     all_features[ONLY_NUMS_IDX] = f32::from(only_numbers);
     all_features[COSINE_IDX] = cosine_similarity(letter_frequencies);
