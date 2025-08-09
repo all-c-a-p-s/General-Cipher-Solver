@@ -101,7 +101,7 @@ fn best_ioc_spike(ct: &[u8]) -> Option<usize> {
         .iter()
         .enumerate()
         .filter(|(_, x)| **x as f32 > mean * 1.5)
-        .map(|(a, _)| a)
+        .map(|(a, _)| a + 2)
         .collect::<Vec<_>>();
 
     if high_indices.is_empty() {
@@ -114,8 +114,8 @@ fn best_ioc_spike(ct: &[u8]) -> Option<usize> {
     // and less likely otherwise
     // we choose the best IOC spike based on this
 
-    let (mut best_score, mut spike) = (0, 0);
-    for step in 1..high_indices.len() {
+    let (mut best_score, mut spike) = (-1, 0);
+    for &step in &high_indices {
         let score = high_indices
             .windows(2)
             .map(|w| if w[0] + step == w[1] { 1 } else { -1 })
@@ -126,8 +126,7 @@ fn best_ioc_spike(ct: &[u8]) -> Option<usize> {
             best_score = score;
         }
     }
-
-    Some(spike)
+    if spike == 0 { None } else { Some(spike) }
 }
 
 /// Features of type [f32; 46]
