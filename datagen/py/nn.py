@@ -17,8 +17,8 @@ X_train, X_test, y_train, y_test = data.load_data("../data/cipher_data.csv")
 logging.info("done loading data")
 
 inputs = Input(shape=(46,))
-dense = Dense(32)(inputs)
-outputs = Dense(13)(dense)
+dense = Dense(32, activation="relu")(inputs)
+outputs = Dense(13, activation="softmax")(dense)
 
 model = Model(inputs, outputs)
 model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])

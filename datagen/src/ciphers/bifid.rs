@@ -17,7 +17,7 @@ impl<const REMOVE_J: bool> Key<REMOVE_J> {
         }
     }
 
-    pub fn encipher(self, pt: &[u8]) -> Vec<u8> {
+    pub fn encipher(&self, pt: &[u8]) -> Vec<u8> {
         let formatter = if REMOVE_J { grid_fmt_j } else { grid_fmt_z };
         let pt = formatter(pt);
         let letter_map = |x: &u8| {
@@ -35,7 +35,7 @@ impl<const REMOVE_J: bool> Key<REMOVE_J> {
         }
 
         let indices = new_coords.iter().flatten().collect::<Vec<_>>();
-        let index_map = |(row, col): (usize, usize)| Self::ALPHABET[row * 5 + col];
+        let index_map = |(row, col): (usize, usize)| self.grid[row * 5 + col];
 
         let mut res = vec![];
         for pair in indices.chunks(2) {

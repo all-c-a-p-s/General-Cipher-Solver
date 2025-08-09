@@ -21,7 +21,7 @@ impl<const REMOVE_J: bool> Key<REMOVE_J> {
             column_order: vector_initialise::<5, usize>(&index_sample),
         }
     }
-    pub fn encipher(self, ct: &[u8]) -> Vec<u8> {
+    pub fn encipher(&self, ct: &[u8]) -> Vec<u8> {
         let formatter = if REMOVE_J { grid_fmt_j } else { grid_fmt_z };
         let ct = formatter(ct);
         let letter_map = |x: &u8| {

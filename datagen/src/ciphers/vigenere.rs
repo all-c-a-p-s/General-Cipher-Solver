@@ -12,7 +12,7 @@ impl<const N: usize> Key<N> {
         }
     }
 
-    pub fn encipher(self, pt: &[u8]) -> Vec<u8> {
+    pub fn encipher(&self, pt: &[u8]) -> Vec<u8> {
         pt.iter()
             .enumerate()
             .map(|(i, &x)| LETTERS[((x - b'A' + self.shifts[i % N]) % 26) as usize])

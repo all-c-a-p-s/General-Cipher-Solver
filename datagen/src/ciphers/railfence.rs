@@ -12,7 +12,7 @@ impl<const N: usize> Key<N> {
         }
     }
 
-    pub fn encipher(self, pt: &[u8]) -> Vec<u8> {
+    pub fn encipher(&self, pt: &[u8]) -> Vec<u8> {
         let mut rows = vec![vec![]; N];
         let mut down = true;
         let mut next = |n: usize| {

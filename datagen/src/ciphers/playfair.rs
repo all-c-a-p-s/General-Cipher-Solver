@@ -17,16 +17,16 @@ impl<const REMOVE_J: bool> Key<REMOVE_J> {
         }
     }
 
-    pub fn encipher(self, pt: &[u8]) -> Vec<u8> {
+    pub fn encipher(&self, pt: &[u8]) -> Vec<u8> {
         let formatter = if REMOVE_J { grid_fmt_j } else { grid_fmt_z };
-        let mut pt = formatter(pt);
+        let pt = formatter(pt);
 
         let mut fixed = vec![];
         for w in pt.windows(2) {
             let x = if w[0] == w[1] {
                 let null = if w[0] == b'X' {
                     //double x should be unlikely but you never know
-                    b'Z'
+                    b'Y'
                 } else {
                     b'X'
                 };
@@ -37,8 +37,8 @@ impl<const REMOVE_J: bool> Key<REMOVE_J> {
             fixed.extend(x);
         }
 
-        if pt.len() % 2 != 0 {
-            pt.push(b'X');
+        if fixed.len() % 2 != 0 {
+            fixed.push(b'X');
         }
 
         let coords = |idx: usize| (idx / 5, idx % 5);
@@ -66,6 +66,10 @@ impl<const REMOVE_J: bool> Key<REMOVE_J> {
             vec![self.grid[gi1], self.grid[gi2]]
         };
 
-        pt.chunks(2).map(|x| encipher_bigram(x)).flatten().collect()
+        fixed
+            .chunks(2)
+            .map(|x| encipher_bigram(x))
+            .flatten()
+            .collect()
     }
 }

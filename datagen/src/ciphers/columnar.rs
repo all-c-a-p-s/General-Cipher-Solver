@@ -16,7 +16,7 @@ impl<const COLUMNS: usize> Key<COLUMNS> {
 
     /// To decipher a text written by columns, written by rows
     #[must_use]
-    pub fn encipher(self, pt: &[u8]) -> Vec<u8> {
+    pub fn encipher(&self, pt: &[u8]) -> Vec<u8> {
         let mut columns = vec![vec![]; COLUMNS];
         for (i, &c) in pt.iter().enumerate() {
             columns[i % COLUMNS].push(c);

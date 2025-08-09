@@ -22,7 +22,7 @@ impl<const REMOVE_J: bool, const N: usize> Key<REMOVE_J, N> {
         }
     }
 
-    pub fn encipher(self, pt: &[u8]) -> Vec<u8> {
+    pub fn encipher(&self, pt: &[u8]) -> Vec<u8> {
         let formatter = if REMOVE_J { grid_fmt_j } else { grid_fmt_z };
         let pt = formatter(pt);
 

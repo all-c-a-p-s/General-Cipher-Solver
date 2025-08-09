@@ -34,7 +34,7 @@ impl<const N: usize> Key<N> {
         }
     }
 
-    pub fn encipher(self, pt: &[u8]) -> Vec<u8> {
+    pub fn encipher(&self, pt: &[u8]) -> Vec<u8> {
         let mut pt = pt.to_vec();
         while pt.len() % N != 0 {
             pt.push(b'X');

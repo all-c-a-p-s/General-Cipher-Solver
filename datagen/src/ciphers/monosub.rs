@@ -21,7 +21,7 @@ impl Key {
     }
 
     #[must_use]
-    pub fn encipher(self, pt: &[u8]) -> Vec<u8> {
+    pub fn encipher(&self, pt: &[u8]) -> Vec<u8> {
         pt.iter()
             .map(|x| self.letter_map[*x as usize - 'A' as usize])
             .collect()

@@ -19,7 +19,7 @@ impl<const REMOVE_J: bool> Key<REMOVE_J> {
         }
     }
 
-    pub fn encipher(self, pt: &[u8]) -> Vec<u8> {
+    pub fn encipher(&self, pt: &[u8]) -> Vec<u8> {
         let formatter = if REMOVE_J { grid_fmt_j } else { grid_fmt_z };
         let mut pt = formatter(pt);
 
@@ -38,15 +38,14 @@ impl<const REMOVE_J: bool> Key<REMOVE_J> {
             let (r1, c1) = coords(i1);
             let (r2, c2) = coords(i2);
 
-            let mut gi1 = grid_index(r1, c2);
-            let mut gi2 = grid_index(r2, c1);
+            let gi1 = grid_index(r1, c2);
+            let gi2 = grid_index(r2, c1);
 
-            if gi1 == i1 && gi2 == i2 {
-                //letters in same column
-                (gi1, gi2) = (gi2, gi1);
+            if r1 == r2 {
+                vec![bg[1], bg[0]]
+            } else {
+                vec![self.b[gi1], self.a[gi2]]
             }
-
-            vec![self.a[gi1], self.b[gi2]]
         };
 
         pt.chunks(2).map(|x| encipher_bigram(x)).flatten().collect()
