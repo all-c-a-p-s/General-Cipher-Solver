@@ -41,7 +41,7 @@ Some examples (all well under 100 lines of code) can be found for:
 
 ## Limitations
 There are some limitations of this project, which may or may not be adressed in the future:
-- You first need to identify the cipher used. Some good advice for this can be found [here](https://github.com/themaddoctor/BritishNationalCipherChallenge/tree/master/guides).
+- You first need to identify the cipher used. You can try the Neural Network Classifier in this repo (see above), or [this one](https://www.cryptool.org/en/cto/ncid/). Otherwise, some good advice for this can be found [here](https://github.com/themaddoctor/BritishNationalCipherChallenge/tree/master/guides).
 - Even after identifying the cipher, in some cases, such as the columnar transposition cipher, you may still have to do some extra work such as determining the key length.
 - Ciphers with very large keys (e.g. over 100 elements) may be impractical to solve.
 - Compound ciphers may be impractical to solve.
