@@ -28,10 +28,10 @@ Once this is done, sit back and watch the [BLAZINGLY FAST](https://programmerhum
 - For these cases, you can find functions to randomise, crossover, and mutate such arrays
 
 ## Classifier
-- I've trained a neural network to classify the cipher. In "perfect conditions" it has an accuracy of 88%, but when you use it this will likely be lower<sup>[3](#footnote3)</sup>.
+- I've trained a neural network to identify which cipher has been used. In "perfect conditions" it has an accuracy of 88%, but when you use it this will likely be lower<sup>[3](#footnote3)</sup>.
 - Please see ```classifier.md``` for detailed instructions.
 
- <sub><a id="footnote1">3</a>For instance, your ciphertext may be too short, or the implementation of the cipher may be different from that which was used to generate data.</sub>
+ <sub><a id="footnote1">3</a>For instance, your ciphertext may be too short, or the implementation of the cipher may be different from that which the model was trained on.</sub>
 
 ## Examples
 Some examples (all well under 100 lines of code) can be found for:
