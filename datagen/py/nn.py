@@ -16,7 +16,7 @@ logging.info("about to start loading data")
 X_train, X_test, y_train, y_test = data.load_data("../data/cipher_data.csv")
 logging.info("done loading data")
 
-inputs = Input(shape=(9,))
+inputs = Input(shape=(46,))
 dense = Dense(32)(inputs)
 outputs = Dense(13)(dense)
 
