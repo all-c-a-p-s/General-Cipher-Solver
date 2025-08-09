@@ -1,0 +1,13 @@
+pub mod adfgx;
+pub mod autokey;
+pub mod bifid;
+pub mod columnar;
+pub mod foursquare;
+pub mod hill;
+pub mod monosub;
+pub mod nihilist;
+pub mod playfair;
+pub mod polybius;
+pub mod railfence;
+pub mod twosquare;
+pub mod vigenere;
