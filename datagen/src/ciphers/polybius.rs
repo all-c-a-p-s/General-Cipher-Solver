@@ -23,7 +23,7 @@ impl<const REMOVE_J: bool> Key<REMOVE_J> {
 
         let coords = |idx: usize| (idx / 5, idx % 5);
         let find = |grid: [u8; 25], c: u8| grid.iter().position(|&x| x == c).unwrap();
-        let to_dec = |(row, col): (usize, usize)| row * 10 + col;
+        let to_dec = |(row, col): (usize, usize)| (row + 1) * 10 + col + 1;
 
         let strung: Vec<String> = pt
             .iter()

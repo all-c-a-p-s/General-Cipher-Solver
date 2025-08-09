@@ -21,7 +21,7 @@ macro_rules! combos {
 
 const CIPHERTEXT_LENGTH: usize = 1500;
 
-fn get_plaintext() -> Vec<u8> {
+pub fn get_plaintext() -> Vec<u8> {
     let corpus = include_bytes!("../brown_corpus.txt");
     let mut rng = rand::rng();
 

@@ -30,7 +30,7 @@ pub fn get_all_frequencies(ct: &[u8]) -> [f32; 36] {
         if x.is_ascii_uppercase() {
             freqs[(x - b'A') as usize] += 1.0 / len;
         } else if x.is_ascii_digit() {
-            freqs[(x - b'0') as usize] += 1.0 / len;
+            freqs[(26 + x - b'0') as usize] += 1.0 / len;
         }
     }
     freqs
@@ -43,7 +43,11 @@ pub fn cosine_similarity(freqs: [f32; 26]) -> f32 {
         .fold(0.0, |acc, (x, y)| acc + x * y);
     let modulus = |x: [f32; 26]| (x.iter().fold(0.0, |acc, x| acc + x * x)).sqrt();
     let denominator = modulus(freqs) * modulus(ENGLISH_FREQUENCIES);
-    numerator / denominator
+    if denominator == 0.0 {
+        -1.0
+    } else {
+        numerator / denominator
+    }
 }
 
 pub fn entropy(ct: &[u8]) -> f32 {
