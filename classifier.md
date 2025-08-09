@@ -36,3 +36,5 @@ Please note that in 'real life', for the reasons mentioned in README, the predic
 - clone the repo and navigate into the 'classifier directory': `cd classifier`
 - paste your ciphertext into ciphertext.txt
 - run the file `main.py`
+
+**TL;DR** The model predicting cipher X was used with 99% certainty DOES NOT MEAN there is a 99% chance cipher X was used (even if it says it is very accurate in the confusion table above).
