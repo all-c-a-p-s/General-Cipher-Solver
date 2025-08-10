@@ -20,8 +20,8 @@ X_train, X_test, y_train, y_test = data.load_data("../data/cipher_data.csv")
 logging.info("done loading data")
 
 
-inputs = Input(shape=(50,))
-reshaped = Reshape((50, 1))(inputs)
+inputs = Input(shape=(51,))
+reshaped = Reshape((51, 1))(inputs)
 conv = Conv1D(16, 3, activation="relu")(reshaped)
 flat = Flatten()(conv)
 dense = Dense(32, activation="relu")(flat)
