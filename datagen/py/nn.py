@@ -20,17 +20,17 @@ X_train, X_test, y_train, y_test = data.load_data("../data/cipher_data.csv")
 logging.info("done loading data")
 
 
-inputs = Input(shape=(46,))
-reshaped = Reshape((46, 1))(inputs)
-conv = Conv1D(32, 3, activation="relu")(reshaped)
+inputs = Input(shape=(50,))
+reshaped = Reshape((50, 1))(inputs)
+conv = Conv1D(16, 3, activation="relu")(reshaped)
 flat = Flatten()(conv)
 dense = Dense(32, activation="relu")(flat)
-outputs = Dense(13, activation="softmax")(dense)
+outputs = Dense(15, activation="softmax")(dense)
 
 model = Model(inputs, outputs)
 model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 
-model.fit(X_train, y_train, epochs=6, batch_size=64, validation_data=(X_test, y_test))
+model.fit(X_train, y_train, epochs=20, batch_size=64, validation_data=(X_test, y_test))
 
 
 logging.info("evaluating model")

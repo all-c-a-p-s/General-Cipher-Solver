@@ -12,11 +12,13 @@ name_to_int = {
     "hill": 5,
     "monosub": 6,
     "nihilist": 7,
-    "playfair": 8,
-    "polybius": 9,
-    "railfence": 10,
-    "twosquare": 11,
-    "vigenere": 12,
+    "permutation": 8,
+    "playfair": 9,
+    "polybius": 10,
+    "railfence": 11,
+    "trifid": 12,
+    "twosquare": 13,
+    "vigenere": 14,
 }
 
 int_to_name = dict(zip(name_to_int.values(), name_to_int.keys()))
@@ -31,8 +33,8 @@ def convert_from_int(x):
 
 
 def load_csv_chunked(filename, chunk_size=10000):
-    rows = 13 * 30 * 10000
-    total_chunks = rows / chunk_size
+    rows = 15 * 2 * 14 * 10000
+    total_chunks = rows // chunk_size
     chunks = []
 
     logging.info("about to call read_csv()")

@@ -15,7 +15,8 @@ impl<const N: usize> Key<N> {
     pub fn encipher(&self, pt: &[u8]) -> Vec<u8> {
         let add_shift = |x: u8, s: u8| LETTERS[((x - b'A' + s) % 26) as usize];
         let mut shifts = self.initial_key.to_vec();
-        shifts.extend(pt);
+
+        shifts.extend(pt.iter().map(|x| x - b'A'));
 
         pt.iter()
             .enumerate()

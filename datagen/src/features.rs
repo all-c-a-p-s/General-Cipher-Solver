@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 const ENGLISH_FREQUENCIES: [f32; 26] = [
     0.084966, 0.020720, 0.045388, 0.033844, 0.111607, 0.018121, 0.024705, 0.030034, 0.075448,
@@ -15,7 +15,7 @@ pub fn char_frequency(c: u8, ct: &[u8]) -> f32 {
     count_character(c, ct) as f32 / ct.len() as f32
 }
 
-pub fn unique_letters(ct: &[u8]) -> usize {
+pub fn unique_chars(ct: &[u8]) -> usize {
     ct.iter().collect::<HashSet<_>>().len()
 }
 
@@ -85,17 +85,53 @@ pub fn shift_ioc(n: usize, ct: &[u8]) -> f32 {
     26.0 * coincidences(ct, &shifted) as f32 / ct.len() as f32
 }
 
-fn best_ioc_spike(ct: &[u8]) -> Option<usize> {
-    let mut coincidences = Vec::new();
-    let mut total = 0.0;
+fn get_coincidences(ct: &[u8]) -> Vec<f32> {
+    let mut coincidences = vec![];
 
     for shift in 2..=15 {
         let c = shift_ioc(shift, ct);
         coincidences.push(c);
-        total += c;
     }
 
-    let mean = total as f32 / coincidences.len() as f32;
+    coincidences
+}
+
+fn ioc(ct: &[u8], unique: usize) -> f32 {
+    let mut char_counts = HashMap::new();
+
+    for &x in ct {
+        *char_counts.entry(x).or_insert(0) += 1;
+    }
+
+    let sum = char_counts.values().fold(0, |acc, x| acc + x * (x - 1));
+
+    if ct.len() <= 1 {
+        return 0.0;
+    }
+
+    unique as f32 * sum as f32 / (ct.len() * (ct.len() - 1)) as f32
+}
+
+fn bigram_ioc(ct: &[u8], unique: usize) -> f32 {
+    let mut bigram_counts: HashMap<[u8; 2], i32> = HashMap::new();
+    let total_bigrams = ct.len() - 1;
+
+    for window in ct.windows(2) {
+        let bigram: [u8; 2] = window.try_into().unwrap();
+        *bigram_counts.entry(bigram).or_insert(0) += 1;
+    }
+
+    let mut sum = 0;
+    for count in bigram_counts.values() {
+        sum += count * (count - 1);
+    }
+
+    (unique * unique) as f32 * sum as f32 / (total_bigrams * (total_bigrams - 1)) as f32
+}
+
+fn best_ioc_spike(coincidences: &[f32]) -> Option<usize> {
+    let total: f32 = coincidences.iter().sum();
+    let mean = total / coincidences.len() as f32;
 
     let high_indices = coincidences
         .iter()
@@ -129,25 +165,41 @@ fn best_ioc_spike(ct: &[u8]) -> Option<usize> {
     if spike == 0 { None } else { Some(spike) }
 }
 
-/// Features of type [f32; 46]
+fn max_ioc_value(coincidences: &[f32]) -> f32 {
+    coincidences.iter().fold(0.0, |acc, x| {
+        if x.partial_cmp(&acc) == Some(std::cmp::Ordering::Greater) {
+            *x
+        } else {
+            acc
+        }
+    })
+}
+
+/// Features of type [f32; 50]
 /// - first 36 are alphanumeric frequencies
 /// -       1  unique letter count
 /// -       1  unique bigram count
 /// -       1  IOC spike present?
 /// -       1  lowest IOC spike (0 if not present)
+/// -       1  highest IOC value
+/// -       1  overall IOC
+/// -       1  bigram IOC
 /// -       1  contains double letters?
-/// -       1  contains 25 letters?
+/// -       1  contains 25 chars?
+/// -       1  contains 27 chars?
 /// -       1  contains numbers?
 /// -       1  only numbers?
 /// -       1  cosine with english frequencies
 /// -       1  shannon entropy
-pub fn get_all_features(ct: &[u8]) -> [f32; 46] {
+pub fn get_all_features(ct: &[u8]) -> [f32; 50] {
     let all_frequencies = get_all_frequencies(ct);
     let letter_frequencies: [f32; 26] = all_frequencies[0..26].try_into().unwrap();
-    let unique_letters = unique_letters(ct) as f32;
-    let unique_bigrams = unique_bigrams(ct) as f32;
+    let unique_chars = unique_chars(ct);
+    let unique_bigrams = unique_bigrams(ct);
 
-    let (has_spike, first_spike) = if let Some(spike) = best_ioc_spike(ct) {
+    let coincidences = get_coincidences(ct);
+
+    let (has_spike, first_spike) = if let Some(spike) = best_ioc_spike(&coincidences) {
         (true, spike)
     } else {
         (false, 0)
@@ -168,7 +220,7 @@ pub fn get_all_features(ct: &[u8]) -> [f32; 46] {
         }
     }
 
-    let mut all_features = [0.0; 46];
+    let mut all_features = [0.0; 50];
     for (i, &f) in all_frequencies.iter().enumerate() {
         all_features[i] = f;
     }
@@ -177,19 +229,27 @@ pub fn get_all_features(ct: &[u8]) -> [f32; 46] {
     const UNIQUE_BIGRAM_IDX: usize = 37;
     const HAS_SPIKE_IDX: usize = 38;
     const LOWEST_SPIKE_IDX: usize = 39;
-    const CONTAINS_DOUBLES_IDX: usize = 40;
-    const CONTAINS_25_LETTERS_IDX: usize = 41;
-    const CONTAINS_NUMS_IDX: usize = 42;
-    const ONLY_NUMS_IDX: usize = 43;
-    const COSINE_IDX: usize = 44;
-    const ENTROPY_IDX: usize = 45;
+    const MAX_IOC_IDX: usize = 40;
+    const OVERALL_IOC_IDX: usize = 41;
+    const BIGRAM_IOC_IDX: usize = 42;
+    const CONTAINS_DOUBLES_IDX: usize = 43;
+    const CONTAINS_25_LETTERS_IDX: usize = 44;
+    const CONTAINS_27_CHARS_IDX: usize = 45;
+    const CONTAINS_NUMS_IDX: usize = 46;
+    const ONLY_NUMS_IDX: usize = 47;
+    const COSINE_IDX: usize = 48;
+    const ENTROPY_IDX: usize = 49;
 
-    all_features[UNIQUE_COUNT_IDX] = unique_letters;
-    all_features[UNIQUE_BIGRAM_IDX] = unique_bigrams;
+    all_features[UNIQUE_COUNT_IDX] = unique_chars as f32;
+    all_features[UNIQUE_BIGRAM_IDX] = unique_bigrams as f32;
     all_features[HAS_SPIKE_IDX] = f32::from(has_spike);
     all_features[LOWEST_SPIKE_IDX] = first_spike as f32;
+    all_features[MAX_IOC_IDX] = max_ioc_value(&coincidences);
+    all_features[OVERALL_IOC_IDX] = ioc(&ct, unique_chars);
+    all_features[BIGRAM_IOC_IDX] = bigram_ioc(&ct, unique_bigrams);
     all_features[CONTAINS_DOUBLES_IDX] = f32::from(contains_double);
-    all_features[CONTAINS_25_LETTERS_IDX] = f32::from(unique_letters == 25.0);
+    all_features[CONTAINS_25_LETTERS_IDX] = f32::from(unique_chars == 25);
+    all_features[CONTAINS_27_CHARS_IDX] = f32::from(unique_chars == 27);
     all_features[CONTAINS_NUMS_IDX] = f32::from(contains_numbers);
     all_features[ONLY_NUMS_IDX] = f32::from(only_numbers);
     all_features[COSINE_IDX] = cosine_similarity(letter_frequencies);

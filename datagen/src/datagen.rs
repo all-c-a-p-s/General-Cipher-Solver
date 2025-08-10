@@ -34,7 +34,7 @@ pub fn get_plaintext() -> Vec<u8> {
 
 fn process_plaintext<const REMOVE_J: bool, const KEY_LENGTH: usize>(
     pt: &[u8],
-) -> [(String, [f32; 46]); 13] {
+) -> [(String, [f32; 50]); 15] {
     let labels = [
         "adfgx",
         "autokey",
@@ -44,14 +44,16 @@ fn process_plaintext<const REMOVE_J: bool, const KEY_LENGTH: usize>(
         "hill",
         "monosub",
         "nihilist",
+        "permutation",
         "playfair",
         "polybius",
         "railfence",
+        "trifid",
         "twosquare",
         "vigenere",
     ];
 
-    let mut cts = vec![vec![]; 13];
+    let mut cts = vec![vec![]; 15];
     cts[0] = ciphers::adfgx::Key::<REMOVE_J>::new().encipher(pt);
     cts[1] = ciphers::autokey::Key::<KEY_LENGTH>::new().encipher(pt);
     cts[2] = ciphers::bifid::Key::<REMOVE_J>::new().encipher(pt);
@@ -60,11 +62,13 @@ fn process_plaintext<const REMOVE_J: bool, const KEY_LENGTH: usize>(
     cts[5] = ciphers::hill::Key::<KEY_LENGTH>::new().encipher(pt);
     cts[6] = ciphers::monosub::Key::new().encipher(pt);
     cts[7] = ciphers::nihilist::Key::<REMOVE_J, KEY_LENGTH>::new().encipher(pt);
-    cts[8] = ciphers::playfair::Key::<REMOVE_J>::new().encipher(pt);
-    cts[9] = ciphers::polybius::Key::<REMOVE_J>::new().encipher(pt);
-    cts[10] = ciphers::railfence::Key::<KEY_LENGTH>::new().encipher(pt);
-    cts[11] = ciphers::twosquare::Key::<REMOVE_J>::new().encipher(pt);
-    cts[12] = ciphers::vigenere::Key::<KEY_LENGTH>::new().encipher(pt);
+    cts[8] = ciphers::permutation::Key::<KEY_LENGTH>::new().encipher(pt);
+    cts[9] = ciphers::playfair::Key::<REMOVE_J>::new().encipher(pt);
+    cts[10] = ciphers::polybius::Key::<REMOVE_J>::new().encipher(pt);
+    cts[11] = ciphers::railfence::Key::<KEY_LENGTH>::new().encipher(pt);
+    cts[12] = ciphers::trifid::Key::<KEY_LENGTH>::new().encipher(pt);
+    cts[13] = ciphers::twosquare::Key::<REMOVE_J>::new().encipher(pt);
+    cts[14] = ciphers::vigenere::Key::<KEY_LENGTH>::new().encipher(pt);
 
     let unlabelled = cts.iter().map(|x| get_all_features(&x)).collect::<Vec<_>>();
 
@@ -76,11 +80,11 @@ fn process_plaintext<const REMOVE_J: bool, const KEY_LENGTH: usize>(
     labelled.try_into().unwrap()
 }
 
-fn gen_from(pt: &[u8]) -> Vec<[(String, [f32; 46]); 13]> {
+fn gen_from(pt: &[u8]) -> Vec<[(String, [f32; 50]); 15]> {
     combos!(pt; 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
 }
 
-pub fn generate_once() -> Vec<[(String, [f32; 46]); 13]> {
+pub fn generate_once() -> Vec<[(String, [f32; 50]); 15]> {
     let pt = get_plaintext();
     gen_from(&pt)
 }

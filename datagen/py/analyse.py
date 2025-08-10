@@ -20,5 +20,5 @@ def analyse_class(correct, preds):
 
 
 def analyse_confusion_matrix(cf):
-    for c in range(0, 13):
+    for c in range(0, 15):
         analyse_class(c, cf[c])
