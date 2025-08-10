@@ -10,7 +10,7 @@ pub mod features;
 
 const ITERATIONS: u64 = 10_000;
 
-fn write_to_csv(data: &[(String, [f32; 50])], filename: &str) -> Result<(), Box<dyn Error>> {
+fn write_to_csv(data: &[(String, [f32; 51])], filename: &str) -> Result<(), Box<dyn Error>> {
     let file_exists = Path::new(filename).exists();
 
     let file = OpenOptions::new()
@@ -22,7 +22,7 @@ fn write_to_csv(data: &[(String, [f32; 50])], filename: &str) -> Result<(), Box<
 
     if !file_exists {
         write!(writer, "label")?;
-        for i in 0..50 {
+        for i in 0..51 {
             write!(writer, ",feature_{}", i)?;
         }
         writeln!(writer)?;

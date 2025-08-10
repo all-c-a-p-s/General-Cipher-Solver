@@ -16,7 +16,10 @@ pub fn char_frequency(c: u8, ct: &[u8]) -> f32 {
 }
 
 pub fn unique_chars(ct: &[u8]) -> usize {
-    ct.iter().collect::<HashSet<_>>().len()
+    ct.iter()
+        .filter(|x| (b'A'..=b'Z').contains(x) || (b'0'..=b'9').contains(x) || **x == b'#')
+        .collect::<HashSet<_>>()
+        .len()
 }
 
 pub fn unique_bigrams(ct: &[u8]) -> usize {
@@ -126,7 +129,7 @@ fn bigram_ioc(ct: &[u8], unique: usize) -> f32 {
         sum += count * (count - 1);
     }
 
-    (unique * unique) as f32 * sum as f32 / (total_bigrams * (total_bigrams - 1)) as f32
+    unique as f32 * sum as f32 / (total_bigrams * (total_bigrams - 1)) as f32
 }
 
 fn best_ioc_spike(coincidences: &[f32]) -> Option<usize> {
@@ -191,7 +194,7 @@ fn max_ioc_value(coincidences: &[f32]) -> f32 {
 /// -       1  only numbers?
 /// -       1  cosine with english frequencies
 /// -       1  shannon entropy
-pub fn get_all_features(ct: &[u8]) -> [f32; 50] {
+pub fn get_all_features(ct: &[u8]) -> [f32; 51] {
     let all_frequencies = get_all_frequencies(ct);
     let letter_frequencies: [f32; 26] = all_frequencies[0..26].try_into().unwrap();
     let unique_chars = unique_chars(ct);
@@ -205,11 +208,13 @@ pub fn get_all_features(ct: &[u8]) -> [f32; 50] {
         (false, 0)
     };
 
-    let (mut contains_double, mut contains_numbers, mut only_numbers) = (false, false, true);
+    let (mut contains_double, mut contains_numbers, mut only_numbers, mut contains_hash) =
+        (false, false, true, false);
 
     //handle several things in one iteration over the ct
     for (i, x) in ct.iter().enumerate() {
         match x {
+            b'#' => contains_hash = true,
             y if y.is_ascii_digit() => contains_numbers = true,
             z if !z.is_ascii_digit() => only_numbers = false,
             _ => {}
@@ -220,7 +225,7 @@ pub fn get_all_features(ct: &[u8]) -> [f32; 50] {
         }
     }
 
-    let mut all_features = [0.0; 50];
+    let mut all_features = [0.0; 51];
     for (i, &f) in all_frequencies.iter().enumerate() {
         all_features[i] = f;
     }
@@ -234,11 +239,12 @@ pub fn get_all_features(ct: &[u8]) -> [f32; 50] {
     const BIGRAM_IOC_IDX: usize = 42;
     const CONTAINS_DOUBLES_IDX: usize = 43;
     const CONTAINS_25_LETTERS_IDX: usize = 44;
-    const CONTAINS_27_CHARS_IDX: usize = 45;
-    const CONTAINS_NUMS_IDX: usize = 46;
-    const ONLY_NUMS_IDX: usize = 47;
-    const COSINE_IDX: usize = 48;
-    const ENTROPY_IDX: usize = 49;
+    const CONTAINS_HASH_IDX: usize = 45;
+    const CONTAINS_27_CHARS_IDX: usize = 46;
+    const CONTAINS_NUMS_IDX: usize = 47;
+    const ONLY_NUMS_IDX: usize = 48;
+    const COSINE_IDX: usize = 49;
+    const ENTROPY_IDX: usize = 50;
 
     all_features[UNIQUE_COUNT_IDX] = unique_chars as f32;
     all_features[UNIQUE_BIGRAM_IDX] = unique_bigrams as f32;
@@ -248,7 +254,8 @@ pub fn get_all_features(ct: &[u8]) -> [f32; 50] {
     all_features[OVERALL_IOC_IDX] = ioc(&ct, unique_chars);
     all_features[BIGRAM_IOC_IDX] = bigram_ioc(&ct, unique_bigrams);
     all_features[CONTAINS_DOUBLES_IDX] = f32::from(contains_double);
-    all_features[CONTAINS_25_LETTERS_IDX] = f32::from(unique_chars == 25);
+    all_features[CONTAINS_25_LETTERS_IDX] = f32::from(unique_chars <= 25);
+    all_features[CONTAINS_HASH_IDX] = f32::from(contains_hash);
     all_features[CONTAINS_27_CHARS_IDX] = f32::from(unique_chars == 27);
     all_features[CONTAINS_NUMS_IDX] = f32::from(contains_numbers);
     all_features[ONLY_NUMS_IDX] = f32::from(only_numbers);

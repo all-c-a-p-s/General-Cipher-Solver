@@ -19,7 +19,7 @@ macro_rules! combos {
     };
 }
 
-const CIPHERTEXT_LENGTH: usize = 1500;
+const CIPHERTEXT_LENGTH: usize = 1510;
 
 pub fn get_plaintext() -> Vec<u8> {
     let corpus = include_bytes!("../brown_corpus.txt");
@@ -34,7 +34,7 @@ pub fn get_plaintext() -> Vec<u8> {
 
 fn process_plaintext<const REMOVE_J: bool, const KEY_LENGTH: usize>(
     pt: &[u8],
-) -> [(String, [f32; 50]); 15] {
+) -> [(String, [f32; 51]); 15] {
     let labels = [
         "adfgx",
         "autokey",
@@ -81,11 +81,11 @@ fn process_plaintext<const REMOVE_J: bool, const KEY_LENGTH: usize>(
     labelled.try_into().unwrap()
 }
 
-fn gen_from(pt: &[u8]) -> Vec<[(String, [f32; 50]); 15]> {
+fn gen_from(pt: &[u8]) -> Vec<[(String, [f32; 51]); 15]> {
     combos!(pt; 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
 }
 
-pub fn generate_once() -> Vec<[(String, [f32; 50]); 15]> {
+pub fn generate_once() -> Vec<[(String, [f32; 51]); 15]> {
     let pt = get_plaintext();
     gen_from(&pt)
 }
