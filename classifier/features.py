@@ -201,7 +201,7 @@ def get_all_features(ct):
     contains_numbers = any(c.isdigit() for c in ct)
     only_numbers = all(c.isdigit() for c in ct) if ct else False
 
-    contains_double = any(ct[i] == ct[i + 1] for i in range(len(ct) - 1))
+    contains_double = any(ct[i] == ct[i + 1] and i % 2 == 0 for i in range(len(ct) - 1))
 
     all_features = np.zeros(50)
 
