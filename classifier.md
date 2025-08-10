@@ -1,23 +1,25 @@
 # Neural Network Classifier
 
-At the moment, the model is only trained to classify the 13 ciphers below. However, it can still be useful even if the ciphertext you input is not one of the ones below (for instance, if it chooses Columnar Transposition or Railfence, you can be fairly certain the ciphertext is a transposition cipher).
+At the moment, the model is only trained to classify the 15 ciphers below. However, it can still be useful even if the ciphertext you input is not one of the ones below (for instance, if it chooses Columnar Transposition or Railfence, you can be fairly certain the ciphertext is a transposition cipher).
 
 Here you can see values from its confusion matrix, based on my own test data (indicating how often it is right, given that it makes a certain prediction).
 
 ```
 adfgx: 1.0000, confusions: []
-autokey: 0.9925, confusions: []
-bifid: 0.9491, confusions: [playfair(0.0119),twosquare(0.0326)]
-columnar: 0.3995, confusions: [railfence(0.6005)]
-foursquare: 0.7496, confusions: [playfair(0.0402),twosquare(0.2022)]
-hill: 0.9640, confusions: [vigenere(0.0307)]
-monosub: 0.9999, confusions: []
+autokey: 0.9941, confusions: []
+bifid: 0.9896, confusions: []
+columnar: 0.3485, confusions: [permutation(0.1537),railfence(0.4978)]
+foursquare: 0.8921, confusions: [twosquare(0.1031)]
+hill: 0.9717, confusions: [vigenere(0.0214)]
+monosub: 0.9995, confusions: []
 nihilist: 0.9995, confusions: []
-playfair: 0.9347, confusions: [bifid(0.0196),foursquare(0.0434)]
+permutation: 0.7537, confusions: [columnar(0.1173),railfence(0.1287)]
+playfair: 0.9999, confusions: []
 polybius: 1.0000, confusions: []
-railfence: 0.6698, confusions: [columnar(0.3301)]
-twosquare: 0.8115, confusions: [bifid(0.0238),foursquare(0.1596)]
-vigenere: 0.9745, confusions: [autokey(0.0100)]
+railfence: 0.5843, confusions: [columnar(0.2655),permutation(0.1502)]
+trifid: 0.9998, confusions: []
+twosquare: 0.7566, confusions: [foursquare(0.2368)]
+vigenere: 0.9878, confusions: []
 ```
 
 Please note that in 'real life', for the reasons mentioned in README, the predictions will almost certainly be wrong more frequently than this suggests.
