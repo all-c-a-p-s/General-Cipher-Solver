@@ -2,7 +2,7 @@
 
 At the moment, the model is only trained to classify the 15 ciphers below. However, it can still be useful even if the ciphertext you input is not one of the ones below (for instance, if it chooses Columnar Transposition or Railfence, you can be fairly certain the ciphertext is a transposition cipher).
 
-Here you can see values from its confusion matrix, based on my own test data (indicating how often it is right, given that it makes a certain prediction).
+Here you can see values from its confusion matrix, based on my own test data (indicating how often it predicts that cipher X was used, given that cipher X was used).
 
 ```
 adfgx: 1.0000, confusions: []
