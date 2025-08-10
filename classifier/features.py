@@ -128,7 +128,7 @@ def bigram_ioc(ct, unique):
     if total_bigrams <= 1:
         return 0.0
 
-    return (unique * unique) * sum_val / (total_bigrams * (total_bigrams - 1))
+    return unique * sum_val / (total_bigrams * (total_bigrams - 1))
 
 
 def shift_ioc(n, ct):
@@ -203,7 +203,7 @@ def get_all_features(ct):
 
     contains_double = any(ct[i] == ct[i + 1] and i % 2 == 0 for i in range(len(ct) - 1))
 
-    all_features = np.zeros(50)
+    all_features = np.zeros(51)
 
     all_features[:36] = all_frequencies
 
@@ -216,11 +216,12 @@ def get_all_features(ct):
     BIGRAM_IOC_IDX = 42
     CONTAINS_DOUBLES_IDX = 43
     CONTAINS_25_LETTERS_IDX = 44
-    CONTAINS_27_LETTERS_IDX = 45
-    CONTAINS_NUMS_IDX = 46
-    ONLY_NUMS_IDX = 47
-    COSINE_IDX = 48
-    ENTROPY_IDX = 49
+    CONTAINS_HASH_IDX = 45
+    CONTAINS_27_LETTERS_IDX = 46
+    CONTAINS_NUMS_IDX = 47
+    ONLY_NUMS_IDX = 48
+    COSINE_IDX = 49
+    ENTROPY_IDX = 50
 
     all_features[UNIQUE_COUNT_IDX] = float(unique_chars_count)
     all_features[UNIQUE_BIGRAMS_IDX] = float(unique_bigrams_count)
@@ -231,6 +232,7 @@ def get_all_features(ct):
     all_features[BIGRAM_IOC_IDX] = bigram_ioc(ct, unique_bigrams_count)
     all_features[CONTAINS_DOUBLES_IDX] = float(contains_double)
     all_features[CONTAINS_25_LETTERS_IDX] = float(unique_chars_count == 25)
+    all_features[CONTAINS_HASH_IDX] = float("#" in ct)
     all_features[CONTAINS_27_LETTERS_IDX] = float(unique_chars_count == 27)
     all_features[CONTAINS_NUMS_IDX] = float(contains_numbers)
     all_features[ONLY_NUMS_IDX] = float(only_numbers)

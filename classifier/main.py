@@ -43,7 +43,7 @@ def analyse_ct(filename, threshold=0.01):
     with open(filename, "r") as file:
         ct = fmt(file.read().strip())
 
-    fs = features.get_all_features(ct).reshape(1, 50)
+    fs = features.get_all_features(ct).reshape(1, 51)
     probs = model.predict(fs, verbose=0)[0]
 
     likely = []
