@@ -30,7 +30,7 @@ outputs = Dense(15, activation="softmax")(dense)
 model = Model(inputs, outputs)
 model.compile(optimizer="adam", loss="categorical_crossentropy", metrics=["accuracy"])
 
-model.fit(X_train, y_train, epochs=20, batch_size=64, validation_data=(X_test, y_test))
+model.fit(X_train, y_train, epochs=8, batch_size=64, validation_data=(X_test, y_test))
 
 
 logging.info("evaluating model")

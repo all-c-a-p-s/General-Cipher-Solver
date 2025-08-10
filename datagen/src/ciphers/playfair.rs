@@ -22,23 +22,21 @@ impl<const REMOVE_J: bool> Key<REMOVE_J> {
         let pt = formatter(pt);
 
         let mut fixed = vec![];
-        for w in pt.windows(2) {
-            let x = if w[0] == w[1] {
-                let null = if w[0] == b'X' {
-                    //double x should be unlikely but you never know
-                    b'Y'
-                } else {
-                    b'X'
-                };
-                vec![w[0], null, w[1]]
+        for x in pt {
+            if fixed.last().is_some_and(|c| *c == x) {
+                fixed.push(if x == b'X' { b'Y' } else { b'X' });
+                fixed.push(x);
             } else {
-                w.to_vec()
-            };
-            fixed.extend(x);
+                fixed.push(x);
+            }
         }
 
         if fixed.len() % 2 != 0 {
-            fixed.push(b'X');
+            fixed.push(if fixed.last() == Some(&b'X') {
+                b'Y'
+            } else {
+                b'X'
+            });
         }
 
         let coords = |idx: usize| (idx / 5, idx % 5);
@@ -62,6 +60,8 @@ impl<const REMOVE_J: bool> Key<REMOVE_J> {
                 gi1 = if gi1 % 5 == 4 { gi1 - 4 } else { gi1 + 1 };
                 gi2 = if gi2 % 5 == 4 { gi2 - 4 } else { gi2 + 1 };
             }
+
+            assert_ne!(gi1, gi2);
 
             vec![self.grid[gi1], self.grid[gi2]]
         };

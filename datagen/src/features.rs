@@ -215,7 +215,7 @@ pub fn get_all_features(ct: &[u8]) -> [f32; 50] {
             _ => {}
         };
 
-        if i < ct.len() - 1 && ct[i] == ct[i + 1] {
+        if i < ct.len() - 1 && ct[i] == ct[i + 1] && i % 2 == 0 {
             contains_double = true;
         }
     }

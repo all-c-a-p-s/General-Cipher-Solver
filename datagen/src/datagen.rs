@@ -77,6 +77,7 @@ fn process_plaintext<const REMOVE_J: bool, const KEY_LENGTH: usize>(
         .enumerate()
         .map(|(i, &x)| (labels[i].to_string(), x))
         .collect::<Vec<_>>();
+
     labelled.try_into().unwrap()
 }
 
