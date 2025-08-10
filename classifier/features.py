@@ -41,7 +41,7 @@ def char_frequency(c, ct):
     return count_character(c, ct) / len(ct)
 
 
-def unique_letters(ct):
+def unique_chars(ct):
     return len(set(ct))
 
 
@@ -94,6 +94,43 @@ def entropy(ct):
     return entropy_val
 
 
+def ioc(ct, unique):
+    char_counts = {}
+
+    for char in ct:
+        char_counts[char] = char_counts.get(char, 0) + 1
+
+    sum_val = 0
+    for count in char_counts.values():
+        sum_val += count * (count - 1)
+
+    if len(ct) <= 1:
+        return 0.0
+
+    return unique * sum_val / (len(ct) * (len(ct) - 1))
+
+
+def bigram_ioc(ct, unique):
+    bigram_counts = {}
+    total_bigrams = len(ct) - 1
+
+    if total_bigrams <= 0:
+        return 0.0
+
+    for i in range(len(ct) - 1):
+        bigram = ct[i : i + 2]
+        bigram_counts[bigram] = bigram_counts.get(bigram, 0) + 1
+
+    sum_val = 0
+    for count in bigram_counts.values():
+        sum_val += count * (count - 1)
+
+    if total_bigrams <= 1:
+        return 0.0
+
+    return (unique * unique) * sum_val / (total_bigrams * (total_bigrams - 1))
+
+
 def shift_ioc(n, ct):
     def shift(n, ct):
         return ct[n:] + ct[:n]
@@ -105,13 +142,22 @@ def shift_ioc(n, ct):
     return 26.0 * coincidences(ct, shifted) / len(ct)
 
 
-def best_ioc_spike(ct):
+def get_coincidences(ct):
     coincidences = []
-    total = 0.0
-    for shift in range(2, 16):
+    for shift in range(2, 16):  # 2 to 15 inclusive
         c = shift_ioc(shift, ct)
         coincidences.append(c)
-        total += c
+    return coincidences
+
+
+def max_ioc_value(coincidences):
+    if not coincidences:
+        return 0.0
+    return max(coincidences)
+
+
+def best_ioc_spike(coincidences):
+    total = sum(coincidences)
 
     mean = total / len(coincidences)
     high_indices = [i + 2 for i, x in enumerate(coincidences) if x > mean * 1.5]
@@ -143,10 +189,12 @@ def best_ioc_spike(ct):
 def get_all_features(ct):
     all_frequencies = get_all_frequencies(ct)
     letter_frequencies = all_frequencies[:26]
-    unique_letters_count = unique_letters(ct)
+    unique_chars_count = unique_chars(ct)
     unique_bigrams_count = unique_bigrams(ct)
 
-    spike = best_ioc_spike(ct)
+    coincidences = get_coincidences(ct)
+
+    spike = best_ioc_spike(coincidences)
     has_spike = spike is not None
     first_spike = spike if spike is not None else 0
 
@@ -155,7 +203,7 @@ def get_all_features(ct):
 
     contains_double = any(ct[i] == ct[i + 1] for i in range(len(ct) - 1))
 
-    all_features = np.zeros(46)
+    all_features = np.zeros(50)
 
     all_features[:36] = all_frequencies
 
@@ -163,19 +211,27 @@ def get_all_features(ct):
     UNIQUE_BIGRAMS_IDX = 37
     HAS_SPIKE_IDX = 38
     LOWEST_SPIKE_IDX = 39
-    CONTAINS_DOUBLES_IDX = 40
-    CONTAINS_25_LETTERS_IDX = 41
-    CONTAINS_NUMS_IDX = 42
-    ONLY_NUMS_IDX = 43
-    COSINE_IDX = 44
-    ENTROPY_IDX = 45
+    MAX_IOC_IDX = 40
+    OVERALL_IOC_IDX = 41
+    BIGRAM_IOC_IDX = 42
+    CONTAINS_DOUBLES_IDX = 43
+    CONTAINS_25_LETTERS_IDX = 44
+    CONTAINS_27_LETTERS_IDX = 45
+    CONTAINS_NUMS_IDX = 46
+    ONLY_NUMS_IDX = 47
+    COSINE_IDX = 48
+    ENTROPY_IDX = 49
 
-    all_features[UNIQUE_COUNT_IDX] = float(unique_letters_count)
+    all_features[UNIQUE_COUNT_IDX] = float(unique_chars_count)
     all_features[UNIQUE_BIGRAMS_IDX] = float(unique_bigrams_count)
     all_features[HAS_SPIKE_IDX] = float(has_spike)
     all_features[LOWEST_SPIKE_IDX] = float(first_spike)
+    all_features[MAX_IOC_IDX] = max_ioc_value(coincidences)
+    all_features[OVERALL_IOC_IDX] = ioc(ct, unique_chars_count)
+    all_features[BIGRAM_IOC_IDX] = bigram_ioc(ct, unique_bigrams_count)
     all_features[CONTAINS_DOUBLES_IDX] = float(contains_double)
-    all_features[CONTAINS_25_LETTERS_IDX] = float(unique_letters_count == 25)
+    all_features[CONTAINS_25_LETTERS_IDX] = float(unique_chars_count == 25)
+    all_features[CONTAINS_27_LETTERS_IDX] = float(unique_chars_count == 27)
     all_features[CONTAINS_NUMS_IDX] = float(contains_numbers)
     all_features[ONLY_NUMS_IDX] = float(only_numbers)
     all_features[COSINE_IDX] = cosine_similarity(letter_frequencies)

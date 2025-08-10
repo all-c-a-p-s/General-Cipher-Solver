@@ -5,7 +5,9 @@ from tabulate import tabulate
 
 
 def fmt(s):
-    return "".join(c.upper() for c in s if c.upper().isupper() or c.isdigit())
+    return "".join(
+        c.upper() for c in s if c.upper().isupper() or c.isdigit() or c == "#"
+    )
 
 
 int_to_name = {
@@ -17,11 +19,13 @@ int_to_name = {
     5: "Hill",
     6: "Monoalphabetic Substitution",
     7: "Nihilist Substitution",
-    8: "Playfair",
-    9: "Polybius",
-    10: "Railfence",
-    11: "Two-Square",
-    12: "Vigenere",
+    8: "Permutation Transposition",
+    9: "Playfair",
+    10: "Polybius",
+    11: "Railfence",
+    12: "Trifid",
+    13: "Two-Square",
+    14: "Vigenere",
 }
 
 
@@ -39,7 +43,7 @@ def analyse_ct(filename, threshold=0.01):
     with open(filename, "r") as file:
         ct = fmt(file.read().strip())
 
-    fs = features.get_all_features(ct).reshape(1, 46)
+    fs = features.get_all_features(ct).reshape(1, 50)
     probs = model.predict(fs, verbose=0)[0]
 
     likely = []
