@@ -83,34 +83,29 @@ where
     );
 
     for _ in 0..max_generations {
-        let new_individuals: Vec<T> = if USE_CROSSOVER {
-            let crossover = crossover
-                .as_ref()
-                .expect("attempt to use crossover feature with no crossover function");
-            population
-                .par_iter()
-                .enumerate()
-                .flat_map(|(i, x)| {
-                    (0..num_children)
-                        .into_par_iter()
-                        .map(|_| {
-                            let j = pick_partner(i, population_size);
-                            mutate(crossover(x.clone(), population[j].clone()))
-                        })
-                        .collect::<Vec<T>>()
-                })
-                .collect()
-        } else {
-            population
-                .par_iter()
-                .flat_map(|x| {
-                    (0..num_children)
-                        .into_par_iter()
-                        .map(|_| mutate(x.clone()))
-                        .collect::<Vec<T>>()
-                })
-                .collect()
+        let create_child = |parent: &T, parent_idx: usize| {
+            if USE_CROSSOVER {
+                let crossover_fn = crossover
+                    .as_ref()
+                    .expect("crossover enabled but no crossover function provided");
+                let partner_idx = pick_partner(parent_idx, population_size);
+                let partner = &population[partner_idx];
+                mutate(crossover_fn(parent.clone(), partner.clone()))
+            } else {
+                mutate(parent.clone())
+            }
         };
+
+        let new_individuals: Vec<T> = population
+            .par_iter()
+            .enumerate()
+            .flat_map(|(i, parent)| {
+                (0..num_children)
+                    .into_par_iter()
+                    .map(|_| create_child(parent, i))
+                    .collect::<Vec<T>>()
+            })
+            .collect();
 
         let mut combined_population = population.clone();
         combined_population.extend(new_individuals);
