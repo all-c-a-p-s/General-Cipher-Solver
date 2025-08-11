@@ -2,13 +2,53 @@ use indicatif::ProgressBar;
 use indicatif::ProgressStyle;
 use rand::Rng;
 use rayon::prelude::*;
-use std::sync::Arc;
+use std::collections::HashMap;
 
 use crate::{CIPHERTEXT, fitness};
 use utils::*;
 
+/// Chooses a partner for the 'i'th individual
+/// All numbers in the range 0..n-1 are mapped to a partner
+fn pick_partner(i: usize, n: usize) -> usize {
+    let mut rng = rand::rng();
+    let j = rng.random_range(0..n - 1);
+    if j >= i { j + 1 } else { j }
+}
+
+/// Takes the 'n' fittest individuals from a population, ready for the next generation
+fn take_fittest<T>(
+    population: &[T],
+    n: usize,
+    decipher: &Box<dyn Fn(&Vec<u8>, T) -> Vec<u8> + Send + Sync>,
+    tetragrams: &HashMap<[u8; 4], f64>,
+    unseen_penalty: f64,
+    ct: &Vec<u8>,
+) -> Vec<T>
+where
+    T: Send + Sync + Clone,
+{
+    // pair each key with fitness so we only have to compute once
+    let mut fitness_pairs: Vec<(T, f64)> = population
+        .into_par_iter()
+        .map(|individual| {
+            let deciphered = decipher(ct, individual.clone());
+            let fitness = fitness::tg_fitness(&deciphered, &tetragrams, unseen_penalty);
+            (individual.clone(), fitness)
+        })
+        .collect();
+
+    fitness_pairs.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+
+    // take fittest individuals in population
+    fitness_pairs
+        .into_iter()
+        .take(n)
+        .map(|(individual, _)| individual)
+        .collect()
+}
+
 /// Applies the Genetic Algorithm to solve a cipher, given the parameters
-pub fn solve<const USE_CROSSOVER: bool, T: Clone + Send + Sync>(
+pub fn solve<const USE_CROSSOVER: bool, T>(
     initialise: Box<dyn Fn() -> T + Send + Sync>,
     crossover: Option<Box<dyn Fn(T, T) -> T + Send + Sync>>,
     mutate: Box<dyn Fn(T) -> T + Send + Sync>,
@@ -16,15 +56,17 @@ pub fn solve<const USE_CROSSOVER: bool, T: Clone + Send + Sync>(
     max_generations: usize,
     population_size: usize,
     num_children: usize,
-) -> Result<String, Box<dyn std::error::Error>> {
-    let ct = fmt(CIPHERTEXT);
-    let (tgs, unseen_penalty) = fitness::load_tetragrams();
-    let tetragrams = Arc::new(tgs);
+) -> Result<String, Box<dyn std::error::Error>>
+where
+    T: Clone + Send + Sync,
+{
+    assert!(
+        !(USE_CROSSOVER && population_size < 2),
+        "attempt to use crossover with population size 1 or less"
+    );
 
-    let initialise = Arc::new(initialise);
-    let crossover = crossover.map(Arc::new);
-    let mutate = Arc::new(mutate);
-    let decipher = Arc::new(decipher);
+    let ct = fmt(CIPHERTEXT);
+    let (tetragrams, unseen_penalty) = fitness::load_tetragrams();
 
     let mut population = (0..population_size)
         .into_par_iter()
@@ -42,25 +84,17 @@ pub fn solve<const USE_CROSSOVER: bool, T: Clone + Send + Sync>(
 
     for _ in 0..max_generations {
         let new_individuals: Vec<T> = if USE_CROSSOVER {
-            assert!(population_size > 1, "crossover with population size 1");
+            let crossover = crossover
+                .as_ref()
+                .expect("attempt to use crossover feature with no crossover function");
             population
                 .par_iter()
                 .enumerate()
                 .flat_map(|(i, x)| {
-                    let crossover = crossover
-                        .as_ref()
-                        .expect("attempt to use crossover with no crossover function");
-                    let mutate = Arc::clone(&mutate);
-                    let population = &population;
-
                     (0..num_children)
                         .into_par_iter()
-                        .map(move |_| {
-                            let mut rng = rand::rng();
-                            let mut j = rng.random_range(0..population_size);
-                            while j == i {
-                                j = rng.random_range(0..population_size);
-                            }
+                        .map(|_| {
+                            let j = pick_partner(i, population_size);
                             mutate(crossover(x.clone(), population[j].clone()))
                         })
                         .collect::<Vec<T>>()
@@ -70,50 +104,37 @@ pub fn solve<const USE_CROSSOVER: bool, T: Clone + Send + Sync>(
             population
                 .par_iter()
                 .flat_map(|x| {
-                    let mutate = Arc::clone(&mutate);
-                    let x = x.clone();
                     (0..num_children)
                         .into_par_iter()
-                        .map(move |_| mutate(x.clone()))
+                        .map(|_| mutate(x.clone()))
                         .collect::<Vec<T>>()
                 })
                 .collect()
         };
 
-        let mut combined_population = population;
+        let mut combined_population = population.clone();
         combined_population.extend(new_individuals);
 
-        let mut fitness_pairs: Vec<(T, f64)> = combined_population
-            .into_par_iter()
-            .map(|individual| {
-                let deciphered = decipher(&ct, individual.clone());
-                let fitness = fitness::tg_fitness(&deciphered, &tetragrams, unseen_penalty);
-                (individual, fitness)
-            })
-            .collect();
-
-        fitness_pairs.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
-
-        population = fitness_pairs
-            .into_iter()
-            .take(population_size)
-            .map(|(individual, _)| individual)
-            .collect();
+        population = take_fittest(
+            &combined_population,
+            population_size,
+            &decipher,
+            &tetragrams,
+            unseen_penalty,
+            &ct,
+        );
 
         pb.inc(1);
     }
 
     pb.finish();
 
+    let pt = decipher(&ct, population[0].clone());
+
     println!(
         "Final fitness score: {}",
-        fitness::tg_fitness(
-            &decipher(&ct, population[0].clone()),
-            &tetragrams,
-            unseen_penalty
-        ) as f64
-            / ((ct.len() - 3) as f64)
+        fitness::tg_fitness(&pt, &tetragrams, unseen_penalty) as f64 / ((ct.len() - 3) as f64)
     );
 
-    Ok(String::from_utf8(decipher(&ct, population[0].clone()))?)
+    Ok(String::from_utf8(pt)?)
 }
